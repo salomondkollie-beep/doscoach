@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F7A6D">
+<title>DosCoach</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap">
+<style>
+:root{--bg:#F1F5F2;--card:#fff;--ink:#16302D;--mute:#5B6F6B;--line:#D5E0DB;--acc:#1F7A6D;--on:#fff;--gold:#E3A72F;--warn:#B8402F;--warnbg:#FBEAE6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0F1D1B;--card:#172A27;--ink:#E4EFEC;--mute:#97ADA8;--line:#2B4440;--acc:#4FB9A8;--on:#0F1D1B;--warnbg:#3A1F1A;--warn:#F08A78}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif;padding-bottom:84px}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0;line-height:1.15}
+main{max-width:620px;margin:0 auto;padding:20px 16px}
+h1{font-size:30px;font-weight:800}.sub{color:var(--mute);margin:4px 0 18px}
+section{display:none}section.on{display:block}
+.row{display:flex;gap:16px;align-items:flex-start}
+svg{width:110px;flex:none;height:auto}
+.v{fill:var(--line);cursor:pointer;transition:fill .2s}.v.sel{fill:var(--acc)}
+.zl{flex:1;min-width:0}.zl h2{font-size:20px;margin-bottom:10px}
+.chip{display:block;width:100%;text-align:left;font:600 16px Figtree,sans-serif;padding:11px 14px;margin-bottom:8px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+.chip[aria-pressed="true"]{border-color:var(--acc);background:var(--acc);color:var(--on)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px}
+.card h3{font-size:21px;margin-bottom:8px}.card b{display:block;margin-top:12px}
+.alert{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 12px;margin-top:12px}.alert b{display:inline;margin:0}
+.hint{font-size:14px;color:var(--mute);margin-top:14px}
+#log{display:flex;flex-direction:column;gap:10px;margin:14px 0;min-height:120px}
+.m{max-width:88%;padding:10px 13px;border-radius:14px;white-space:pre-wrap}
+.m.u{align-self:flex-end;background:var(--acc);color:var(--on)}
+.m.a{align-self:flex-start;background:var(--card);border:1px solid var(--line)}
+.f{display:flex;gap:8px}
+input{flex:1;min-width:0;font:16px Figtree,sans-serif;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+button.go{font:600 16px Figtree,sans-serif;padding:12px 18px;border:0;border-radius:12px;background:var(--acc);color:var(--on)}
+button:disabled{opacity:.5}
+.gold{background:var(--gold);color:#2A1F00;display:inline-block;padding:3px 10px;border-radius:99px;font-weight:600;font-size:14px}
+ul{padding-left:20px;margin:10px 0}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;padding:14px 4px;border:0;background:none;color:var(--mute);font:600 15px Figtree,sans-serif}
+nav button.on{color:var(--acc);box-shadow:inset 0 3px 0 var(--acc)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+<h1>DosCoach</h1>
+<p class="sub">Comprendre ton mal de dos et bouger mieux.</p>
+<section id="s0" class="on">
+ <div class="row"><svg id="sp" viewBox="0 0 120 380" role="img" aria-label="Colonne vertébrale : touche une zone"></svg>
+ <div class="zl"><h2 id="zt"></h2><div id="zc"></div></div></div>
+ <div class="card" id="fiche"></div>
+ <p class="hint">Informations générales. Elles ne remplacent pas l'avis d'un médecin.</p>
+</section>
+<section id="s1">
+ <h2>Coach IA</h2><p class="sub" id="quota"></p>
+ <div id="log"><div class="m a">Bonjour ! Décris ta douleur : où as-tu mal, depuis quand, et quand elle augmente.</div></div>
+ <div class="f"><input id="q" placeholder="Ex. : j'ai mal en bas du dos le matin" maxlength="300"><button class="go" id="send">Envoyer</button></div>
+ <div class="alert" style="margin-top:14px"><b>Va vite voir un médecin</b> en cas de douleur après un choc, fièvre, perte de force, fourmillements importants ou difficulté à uriner.</div>
+</section>
+<section id="s2">
+ <h2>Mode + <span class="gold">Premium</span></h2><p class="sub" id="pst"></p>
+ <div class="card">
+  <ul><li>Questions illimitées au coach IA</li><li>Valable 30 jours</li><li>Paiement par Wave, Orange Money, MTN MoMo, Moov Money ou carte</li></ul>
+  <button class="go" id="pb">Passer au mode +</button>
+  <p class="hint" id="pmsg"></p>
+  <h3 style="margin-top:18px;font-size:18px">Ton code personnel</h3>
+  <p class="hint" style="margin-top:6px">Garde-le : il te permet de retrouver ton mode + sur un autre téléphone. Ne le partage pas.</p>
+  <p><code id="code" style="word-break:break-all"></code></p>
+  <div class="f"><input id="rc" placeholder="Entrer un code existant"><button class="go" id="rb">Retrouver</button></div>
+ </div>
+</section>
+</main>
+<nav><button class="on" data-t="0">Mon dos</button><button data-t="1">Coach IA</button><button data-t="2">Mode +</button></nav>
+<script>
+const Z={
+cervical:{t:"Cou (cervicales)",f:[{n:"Cervicalgie",c:"Muscles du cou tendus par une mauvaise posture, l'écran du téléphone ou un oreiller trop haut.",e:"Rotations lentes de la tête, étirement des épaules, 3 fois 20 secondes. Fais des pauses toutes les 30 minutes devant l'écran.",a:"Douleur qui descend dans le bras, fourmillements, maux de tête violents après un choc."}]},
+dorsal:{t:"Milieu du dos (dorsales)",f:[{n:"Dorsalgie",c:"Position assise prolongée, dos arrondi, stress, port de charges mal réparti.",e:"Ouvre la poitrine bras en croix, étirement du dos à quatre pattes (dos rond puis creux), respiration lente.",a:"Douleur à la poitrine, essoufflement, douleur la nuit qui ne passe pas."}]},
+lombaire:{t:"Bas du dos (lombaires)",f:[
+{n:"Lombalgie",c:"Muscles ou articulations du bas du dos surmenés : effort, sédentarité, mauvaise posture.",e:"Marche douce, genoux ramenés vers la poitrine allongé, bascule du bassin. Reste actif, le repos complet aggrave souvent la douleur.",a:"Douleur après une chute, fièvre, perte de force dans les jambes."},
+{n:"Sciatique",c:"Nerf sciatique irrité : douleur qui descend de la fesse vers la jambe, parfois jusqu'au pied.",e:"Marche courte et régulière, étirement doux des fesses. Évite de porter lourd et de rester assis longtemps.",a:"Jambe qui s'affaiblit, engourdissement près des parties intimes, difficulté à uriner."},
+{n:"Hernie discale",c:"Un disque entre deux vertèbres appuie sur un nerf. Douleur au dos et parfois à la jambe.",e:"Demande l'avis d'un médecin avant tout exercice. En général : marche douce et pas de charges lourdes.",a:"Faiblesse d'une jambe, douleur qui augmente malgré le repos."}]}
+};
+const N=[7,12,5],H=[9,11,15],W=[22,30,38],K=["cervical","dorsal","lombaire"];
+let zone="lombaire",fi=0;const hist=[];
+const $=id=>document.getElementById(id);
+function st(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+function spine(){let y=6,h="";N.forEach((n,i)=>{h+=`<g data-z="${K[i]}">`;for(let j=0;j<n;j++){h+=`<rect class="v" x="${60-W[i]/2}" y="${y}" width="${W[i]}" height="${H[i]}" rx="4"/>`;y+=H[i]+3}h+="</g>";y+=10});
+ $("sp").innerHTML=h;$("sp").querySelectorAll("g").forEach(g=>g.onclick=()=>{zone=g.dataset.z;fi=0;draw()})}
+function draw(){
+ $("sp").querySelectorAll("g").forEach(g=>g.querySelectorAll("rect").forEach(r=>r.classList.toggle("sel",g.dataset.z===zone)));
+ const z=Z[zone];$("zt").textContent=z.t;
+ $("zc").innerHTML=z.f.map((f,i)=>`<button class="chip" aria-pressed="${i===fi}" data-i="${i}">${f.n}</button>`).join("");
+ $("zc").querySelectorAll("button").forEach(b=>b.onclick=()=>{fi=+b.dataset.i;draw()});
+ const f=z.f[fi];
+ $("fiche").innerHTML=`<h3>${f.n}</h3><b>Causes fréquentes</b>${f.c}<b>Bouger sans risque</b>${f.e}<div class="alert"><b>Consulte si :</b> ${f.a}</div>`;
+}
+const rnd=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,"0")).join("");
+const okId=c=>/^[a-f0-9]{32}$/.test(c||"");
+let ID=st("dc_id");if(!okId(ID)){ID=rnd();st("dc_id",ID)}
+let S={premium:false,exp:0,left:null};
+async function refresh(){try{S=await(await fetch("/api/status?id="+ID)).json()}catch(e){}status()}
+function status(){
+ $("quota").textContent=S.premium?"Mode + : questions illimitées.":`Gratuit : ${S.left==null?"…":S.left} question(s) restante(s) aujourd'hui.`;
+ $("pst").textContent=S.premium?"Mode + actif jusqu'au "+new Date(S.exp).toLocaleDateString("fr-FR")+".":"Passe au mode + pour un coach sans limite.";
+ $("pb").textContent=S.premium?"Prolonger de 30 jours":"Passer au mode +";
+ $("code").textContent=ID;
+}
+$("pb").onclick=async()=>{
+ $("pb").disabled=true;$("pmsg").textContent="Ouverture du paiement…";
+ try{const r=await fetch("/api/pay",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:ID})});const j=await r.json();
+  if(!j.url)throw 0;location.href=j.url}
+ catch(e){$("pmsg").textContent="Paiement indisponible. Réessaie dans un instant.";$("pb").disabled=false}
+};
+$("rb").onclick=async()=>{
+ const c=$("rc").value.trim().toLowerCase();
+ if(!okId(c)){$("pmsg").textContent="Code invalide : 32 caractères (chiffres et lettres de a à f).";return}
+ ID=c;st("dc_id",c);$("rc").value="";await refresh();
+ $("pmsg").textContent=S.premium?"Compte retrouvé. Mode + actif.":"Code enregistré. Aucun mode + actif sur ce code."
+};
+async function back(){
+ const tx=new URLSearchParams(location.search).get("tx");
+ if(!tx){await refresh();return}
+ history.replaceState(null,"","/");show(2);$("pmsg").textContent="Vérification du paiement…";
+ try{const j=await(await fetch("/api/verify?tx="+encodeURIComponent(tx))).json();
+  $("pmsg").textContent=j.ok?"Paiement reçu. Le mode + est actif.":"Paiement non confirmé. S'il est débité, réessaie dans quelques minutes."}
+ catch(e){$("pmsg").textContent="Vérification impossible. Réessaie dans un instant."}
+ await refresh();
+}
+function bubble(c,t){const d=document.createElement("div");d.className="m "+c;d.textContent=t;$("log").appendChild(d);d.scrollIntoView({block:"nearest"});return d}
+async function send(){
+ const t=$("q").value.trim();if(!t)return;
+ $("q").value="";bubble("u",t);hist.push({role:"user",content:t});
+ const out=bubble("a","…");$("send").disabled=true;
+ try{
+  const r=await fetch("/api/coach",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:ID,messages:hist.slice(-9)})});
+  const j=await r.json();
+  if(r.status===429){out.textContent="Tu as utilisé tes questions gratuites du jour. Le mode + les rend illimitées.";hist.pop();S.left=0;return}
+  if(!j.text)throw 0;
+  out.textContent=j.text;hist.push({role:"assistant",content:j.text});if(j.left!=null)S.left=j.left;
+ }catch(e){out.textContent="Le coach n'a pas pu répondre. Réessaie dans un instant.";hist.pop()}
+ finally{$("send").disabled=false;status()}
+}
+$("send").onclick=send;$("q").onkeydown=e=>{if(e.key==="Enter")send()};
+function show(i){
+ document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",+x.dataset.t===i));
+ document.querySelectorAll("section").forEach((s,k)=>s.classList.toggle("on",k===i));scrollTo(0,0)}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(+b.dataset.t));
+spine();draw();status();back();
+</script>
+</body>
+   </html>
