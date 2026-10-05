@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "affichage": "autonome",
+  "nom": "doscoach.vercel",
+  "orientation": "n'importe laquelle",
+  "portée": "/",
+  "short_name": "doscoach.vercel",
+  "start_url": "/",
+  "theme_color": "#1F7A6D",
+  "lang": "fr"
+}
