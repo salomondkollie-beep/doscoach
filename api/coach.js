@@ -1,6 +1,32 @@
-// Le coach IA. La clé Anthropic reste ici, côté serveur. Les limites gratuites sont comptées ici aussi.
+// Le coach IA (Gemini, offre gratuite) - VERSION DE TEST qui affiche la raison des erreurs. La clé reste ici, côté serveur. Les limites gratuites sont comptées ici aussi.
 const { cmd, okId, prem, today, LIM, IPLIM } = require("./_db");
 const RULES = "Tu es DosCoach, un coach bienveillant spécialisé dans le mal de dos. Réponds en français, en 5 phrases maximum, avec des conseils simples (mouvement doux, posture, habitudes). Ne pose jamais de diagnostic. Si la personne décrit un signe d'alerte (douleur après un choc, fièvre, perte de force, fourmillements importants, difficulté à uriner, douleur nocturne intense), dis-lui de consulter un médecin rapidement. Si la douleur dure, rappelle que tu ne remplaces pas un médecin.";
+const MODELS = [process.env.GEMINI_MODEL, "gemini-3.6-flash", "gemini-2.5-flash"].filter(Boolean);
+
+async function ask(contents) {
+  let err = "inconnue";
+  for (const m of MODELS) {
+    try {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY || "" },
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: RULES }] }, contents })
+      });
+      const j = await r.json();
+      const c = j.candidates && j.candidates[0];
+      const parts = c && c.content && c.content.parts;
+      const text = parts && parts.map(p => p.text || "").join("").trim();
+      if (text) return { text };
+      err = m + " : HTTP " + r.status + " " + ((j.error && j.error.message) || (c && c.finishReason) || "réponse vide");
+      if (r.status !== 404) break;
+    } catch (e) {
+      err = m + " : " + e.message;
+      break;
+    }
+  }
+  return { err: String(err).slice(0, 300) };
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).end();
   const { messages, id } = req.body || {};
@@ -24,17 +50,11 @@ module.exports = async (req, res) => {
     if (n > LIM || ni > IPLIM) return res.status(429).json({ limit: true });
     left = LIM - n;
   }
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 400, system: RULES, messages: msgs })
-  });
-  const j = await r.json();
-  const text = j.content && j.content[0] && j.content[0].text;
-  if (!text) {
+  const contents = msgs.map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+  const out = await ask(contents);
+  if (!out.text) {
     if (!premium) await cmd(["DECR", kn]);
-    return res.status(502).json({ error: "Coach indisponible" });
+    return res.json({ text: "Erreur technique : " + out.err, left: premium ? null : left + 1 });
   }
-  res.json({ text, left });
+  res.json({ text: out.text, left });
 };
-  
