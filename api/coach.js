@@ -1,4 +1,4 @@
-// Le coach IA (Gemini, offre gratuite) - VERSION DE TEST qui affiche la raison des erreurs. La clé reste ici, côté serveur. Les limites gratuites sont comptées ici aussi.
+// Le coach IA (Gemini, offre gratuite). La clé reste ici, côté serveur. Les limites gratuites sont comptées ici aussi.
 const { cmd, okId, prem, today, LIM, IPLIM } = require("./_db");
 const RULES = "Tu es DosCoach, un coach bienveillant spécialisé dans le mal de dos. Réponds en français, en 5 phrases maximum, avec des conseils simples (mouvement doux, posture, habitudes). Ne pose jamais de diagnostic. Si la personne décrit un signe d'alerte (douleur après un choc, fièvre, perte de force, fourmillements importants, difficulté à uriner, douleur nocturne intense), dis-lui de consulter un médecin rapidement. Si la douleur dure, rappelle que tu ne remplaces pas un médecin.";
 const MODELS = [process.env.GEMINI_MODEL, "gemini-3.6-flash", "gemini-2.5-flash"].filter(Boolean);
@@ -54,7 +54,8 @@ module.exports = async (req, res) => {
   const out = await ask(contents);
   if (!out.text) {
     if (!premium) await cmd(["DECR", kn]);
-    return res.json({ text: "Erreur technique : " + out.err, left: premium ? null : left + 1 });
+    console.error("Gemini :", out.err);
+    return res.status(502).json({ error: "Coach indisponible" });
   }
   res.json({ text: out.text, left });
 };
