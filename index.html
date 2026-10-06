@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1F7A6D">
 <title>DosCoach</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap">
 <style>
 :root{--bg:#F1F5F2;--card:#fff;--ink:#16302D;--mute:#5B6F6B;--line:#D5E0DB;--acc:#1F7A6D;--on:#fff;--gold:#E3A72F;--warn:#B8402F;--warnbg:#FBEAE6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -43,7 +46,7 @@ nav button.on{color:var(--acc);box-shadow:inset 0 3px 0 var(--acc)}
 </head>
 <body>
 <main>
-<h1>DosCoach</h1>
+<h1><img src="/icon.svg" alt="" width="36" height="36" style="vertical-align:-7px;margin-right:10px;border-radius:9px">DosCoach</h1>
 <p class="sub">Comprendre ton mal de dos et bouger mieux.</p>
 <section id="s0" class="on">
  <div class="row"><svg id="sp" viewBox="0 0 120 380" role="img" aria-label="Colonne vertébrale : touche une zone"></svg>
@@ -148,4 +151,4 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(+b.dataset
 spine();draw();status();back();
 </script>
 </body>
-                                                                       </html>
+</html>
