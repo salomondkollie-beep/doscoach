@@ -1,7 +1,7 @@
 // Le coach IA (Gemini, offre gratuite). La clé reste ici, côté serveur. Les limites gratuites sont comptées ici aussi.
 const { cmd, okId, prem, today, LIM, IPLIM } = require("./_db");
 const RULES = "Tu es DosCoach, un coach bienveillant spécialisé dans le mal de dos. Réponds en français, en 5 phrases maximum, avec des conseils simples (mouvement doux, posture, habitudes). Ne pose jamais de diagnostic. Si la personne décrit un signe d'alerte (douleur après un choc, fièvre, perte de force, fourmillements importants, difficulté à uriner, douleur nocturne intense), dis-lui de consulter un médecin rapidement. Si la douleur dure, rappelle que tu ne remplaces pas un médecin.";
-const MODELS = [process.env.GEMINI_MODEL, "gemini-3.6-flash", "gemini-2.5-flash"].filter(Boolean);
+const MODELS = [process.env.GEMINI_MODEL, "gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite"].filter(Boolean);
 
 async function ask(contents) {
   let err = "inconnue";
@@ -18,10 +18,9 @@ async function ask(contents) {
       const text = parts && parts.map(p => p.text || "").join("").trim();
       if (text) return { text };
       err = m + " : HTTP " + r.status + " " + ((j.error && j.error.message) || (c && c.finishReason) || "réponse vide");
-      if (r.status !== 404) break;
+      if (![404, 429, 500, 503].includes(r.status)) break;
     } catch (e) {
       err = m + " : " + e.message;
-      break;
     }
   }
   return { err: String(err).slice(0, 300) };
