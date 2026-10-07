@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#1F7A6D">
 <title>DosCoach</title>
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="apple-touch-icon" href="/api/icon?s=512">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap">
 <style>
@@ -149,6 +149,7 @@ function show(i){
  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",+x.dataset.t===i));
  document.querySelectorAll("section").forEach((s,k)=>s.classList.toggle("on",k===i));scrollTo(0,0)}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(+b.dataset.t));
+if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
 spine();draw();status();back();
 </script>
 </body>
