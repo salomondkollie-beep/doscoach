@@ -75,15 +75,8 @@ nav button.on{color:var(--acc);box-shadow:inset 0 3px 0 var(--acc)}
 </section>
 </main>
 <nav><button class="on" data-t="0">Mon dos</button><button data-t="1">Coach IA</button><button data-t="2">Mode +</button></nav>
+<script src="/maladies.js"></script>
 <script>
-const Z={
-cervical:{t:"Cou (cervicales)",f:[{n:"Cervicalgie",c:"Muscles du cou tendus par une mauvaise posture, l'écran du téléphone ou un oreiller trop haut.",e:"Rotations lentes de la tête, étirement des épaules, 3 fois 20 secondes. Fais des pauses toutes les 30 minutes devant l'écran.",a:"Douleur qui descend dans le bras, fourmillements, maux de tête violents après un choc."}]},
-dorsal:{t:"Milieu du dos (dorsales)",f:[{n:"Dorsalgie",c:"Position assise prolongée, dos arrondi, stress, port de charges mal réparti.",e:"Ouvre la poitrine bras en croix, étirement du dos à quatre pattes (dos rond puis creux), respiration lente.",a:"Douleur à la poitrine, essoufflement, douleur la nuit qui ne passe pas."}]},
-lombaire:{t:"Bas du dos (lombaires)",f:[
-{n:"Lombalgie",c:"Muscles ou articulations du bas du dos surmenés : effort, sédentarité, mauvaise posture.",e:"Marche douce, genoux ramenés vers la poitrine allongé, bascule du bassin. Reste actif, le repos complet aggrave souvent la douleur.",a:"Douleur après une chute, fièvre, perte de force dans les jambes."},
-{n:"Sciatique",c:"Nerf sciatique irrité : douleur qui descend de la fesse vers la jambe, parfois jusqu'au pied.",e:"Marche courte et régulière, étirement doux des fesses. Évite de porter lourd et de rester assis longtemps.",a:"Jambe qui s'affaiblit, engourdissement près des parties intimes, difficulté à uriner."},
-{n:"Hernie discale",c:"Un disque entre deux vertèbres appuie sur un nerf. Douleur au dos et parfois à la jambe.",e:"Demande l'avis d'un médecin avant tout exercice. En général : marche douce et pas de charges lourdes.",a:"Faiblesse d'une jambe, douleur qui augmente malgré le repos."}]}
-};
 const N=[7,12,5],H=[9,11,15],W=[22,30,38],K=["cervical","dorsal","lombaire"];
 let zone="lombaire",fi=0;const hist=[];
 const $=id=>document.getElementById(id);
@@ -153,4 +146,4 @@ if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch
 spine();draw();status();back();
 </script>
 </body>
-</html>
+   </html>
