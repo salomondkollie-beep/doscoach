@@ -1,7 +1,7 @@
 // Base de données Upstash Redis (via l'API REST) et règlement des paiements.
 const URL_ = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
 const TOK = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-const LIM = 3;        // questions gratuites par jour et par utilisateur
+const LIM = 5;        // questions gratuites par jour et par utilisateur
 const IPLIM = 20;     // questions gratuites par jour et par adresse IP
 const cmd = async a => {
   const r = await fetch(URL_, { method: "POST", headers: { Authorization: "Bearer " + TOK }, body: JSON.stringify(a) });
