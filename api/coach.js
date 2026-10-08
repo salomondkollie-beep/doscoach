@@ -56,5 +56,11 @@ module.exports = async (req, res) => {
     console.error("Gemini :", out.err);
     return res.status(502).json({ error: "Coach indisponible" });
   }
+  try {
+    const hk = "h:" + id;
+    await cmd(["RPUSH", hk, JSON.stringify({ role: "user", content: msgs[msgs.length - 1].content }), JSON.stringify({ role: "assistant", content: out.text })]);
+    await cmd(["LTRIM", hk, "-40", "-1"]);
+    await cmd(["EXPIRE", hk, "5184000"]);
+  } catch (e) { console.error("Historique :", e.message); }
   res.json({ text: out.text, left });
 };
