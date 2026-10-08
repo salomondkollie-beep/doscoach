@@ -56,9 +56,9 @@ nav button.on{color:var(--acc);box-shadow:inset 0 3px 0 var(--acc)}
 </section>
 <section id="s1">
  <h2>Coach IA</h2><p class="sub" id="quota"></p>
- <div id="log"><div class="m a">Bonjour ! Décris ta douleur : où as-tu mal, depuis quand, et quand elle augmente.</div></div>
+ <div id="log"><div class="m a first">Bonjour ! Décris ta douleur : où as-tu mal, depuis quand, et quand elle augmente.</div></div>
  <div class="f"><input id="q" placeholder="Ex. : j'ai mal en bas du dos le matin" maxlength="300"><button class="go" id="send">Envoyer</button></div>
- <p class="hint">Tes questions sont traitées par l'IA de Google (offre gratuite). N'écris pas ton nom, ton numéro ni d'autres données personnelles.</p>
+ <p class="hint">Tes questions sont traitées par l'IA de Google (offre gratuite). N'écris pas ton nom, ton numéro ni d'autres données personnelles. Ta conversation est gardée 60 jours, liée à ton code personnel. <button id="clr" style="background:none;border:0;color:var(--acc);font:600 14px Figtree,sans-serif;padding:0;text-decoration:underline">Effacer la conversation</button></p>
  <div class="alert" style="margin-top:14px"><b>Va vite voir un médecin</b> en cas de douleur après un choc, fièvre, perte de force, fourmillements importants ou difficulté à uriner.</div>
 </section>
 <section id="s2">
@@ -111,8 +111,19 @@ $("pb").onclick=async()=>{
 $("rb").onclick=async()=>{
  const c=$("rc").value.trim().toLowerCase();
  if(!okId(c)){$("pmsg").textContent="Code invalide : 32 caractères (chiffres et lettres de a à f).";return}
- ID=c;st("dc_id",c);$("rc").value="";await refresh();
+ ID=c;st("dc_id",c);$("rc").value="";await refresh();await loadHist();
  $("pmsg").textContent=S.premium?"Compte retrouvé. Mode + actif.":"Code enregistré. Aucun mode + actif sur ce code."
+};
+function clearLog(){hist.length=0;$("log").querySelectorAll(".m:not(.first)").forEach(n=>n.remove())}
+async function loadHist(){
+ try{const j=await(await fetch("/api/history?id="+ID)).json();
+  clearLog();(j.messages||[]).forEach(m=>{hist.push({role:m.role,content:m.content});bubble(m.role==="user"?"u":"a",m.content)})}
+ catch(e){}
+}
+$("clr").onclick=async()=>{
+ if(!confirm("Effacer toute la conversation ?"))return;
+ try{await fetch("/api/history",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:ID})})}catch(e){}
+ clearLog();
 };
 async function back(){
  const tx=new URLSearchParams(location.search).get("tx");
@@ -143,7 +154,7 @@ function show(i){
  document.querySelectorAll("section").forEach((s,k)=>s.classList.toggle("on",k===i));scrollTo(0,0)}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(+b.dataset.t));
 if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
-spine();draw();status();back();
+spine();draw();status();back();loadHist();
 </script>
 </body>
    </html>
