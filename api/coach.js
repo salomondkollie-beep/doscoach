@@ -9,7 +9,7 @@ async function call(m, contents, fast) {
   const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 12000);
   try {
     const body = { systemInstruction: { parts: [{ text: RULES }] }, contents };
-    if (fast && thinking(m)) body.generationConfig = { maxOutputTokens: 800, thinkingConfig: thinking(m) };
+    if (fast && thinking(m)) body.generationConfig = { thinkingConfig: thinking(m) };
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY || "" },
@@ -20,28 +20,33 @@ async function call(m, contents, fast) {
     const c = j.candidates && j.candidates[0];
     const parts = c && c.content && c.content.parts;
     const text = parts && parts.map(p => p.text || "").join("").trim();
-    return { status: r.status, text, msg: (j.error && j.error.message) || (c && c.finishReason) || "réponse vide" };
+    return { status: r.status, text, finish: c && c.finishReason, msg: (j.error && j.error.message) || (c && c.finishReason) || "réponse vide" };
   } finally { clearTimeout(timer); }
 }
 
 async function ask(contents) {
   const t0 = Date.now();
-  let err = "inconnue";
+  let err = "inconnue", partial = null;
+  outer:
   for (const m of MODELS) {
     for (const fast of [true, false]) {
-      if (Date.now() - t0 > 28000) return { err: "trop long : " + err };
+      if (Date.now() - t0 > 28000) break outer;
       if (!fast && !thinking(m)) continue;
       try {
         const x = await call(m, contents, fast);
-        if (x.text) return { text: x.text };
-        err = m + " : HTTP " + x.status + " " + x.msg;
-        if (x.status === 400 && fast) continue;
+        if (x.text && x.finish !== "MAX_TOKENS") return { text: x.text };
+        if (x.text) { partial = partial || x.text; err = m + " : réponse coupée"; }
+        else {
+          err = m + " : HTTP " + x.status + " " + x.msg;
+          if (x.status === 400 && fast) continue;
+        }
       } catch (e) {
         err = m + " : " + e.message;
       }
       break;
     }
   }
+  if (partial) return { text: partial };
   return { err: String(err).slice(0, 300) };
 }
 
