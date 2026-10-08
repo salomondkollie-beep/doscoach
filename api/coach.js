@@ -1,15 +1,15 @@
 // Le coach IA (Gemini, offre gratuite). La clé reste ici, côté serveur. Les limites gratuites sont comptées ici aussi.
 const { cmd, okId, prem, today, LIM, IPLIM } = require("./_db");
-const RULES = "Tu es DosCoach, un coach bienveillant spécialisé dans le mal de dos. Réponds en français, en 5 phrases maximum, avec des conseils simples (mouvement doux, posture, habitudes). Ne pose jamais de diagnostic. Si la personne décrit un signe d'alerte (douleur après un choc, fièvre, perte de force, fourmillements importants, difficulté à uriner, douleur nocturne intense), dis-lui de consulter un médecin rapidement. Si la douleur dure, rappelle que tu ne remplaces pas un médecin.";
+const RULES = "Tu es DosCoach, un coach bienveillant spécialisé dans le mal de dos. Tu parles français et tu tutoies la personne. Réponds toujours précisément à ce que la personne vient d'écrire, sans salutation ni phrase d'introduction générique. Si elle cite une maladie ou un symptôme (hernie discale, sciatique, lumbago, torticolis, etc.), parle de cela : explique en une phrase ce que c'est, donne 3 conseils concrets adaptés à cette situation (mouvements, postures, ce qu'il faut éviter), puis pose une seule question pour mieux comprendre (où est la douleur, depuis quand, si elle descend dans la jambe, etc.). Écris au maximum 8 phrases courtes, sans liste à puces et sans mise en gras. Ne pose jamais de diagnostic et ne conseille aucun médicament. Si la personne décrit un signe d'alerte (douleur après un choc, fièvre, perte de force, fourmillements importants, difficulté à uriner ou à retenir les selles, engourdissement entre les jambes, douleur nocturne intense), dis-lui de consulter un médecin rapidement. Rappelle que tu ne remplaces pas un médecin seulement si la douleur dure ou si la personne semble inquiète.";
 const MODELS = [process.env.GEMINI_MODEL, "gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite"].filter(Boolean);
-// Réflexion réduite au minimum : le coach répond bien plus vite.
-const thinking = m => /gemini-3/.test(m) ? { thinkingLevel: "minimal" } : /gemini-2\.5/.test(m) ? { thinkingBudget: 0 } : null;
+// Réflexion réduite : le coach répond vite, tout en restant précis.
+const thinking = m => /gemini-3/.test(m) ? { thinkingLevel: "low" } : /gemini-2\.5/.test(m) ? { thinkingBudget: 0 } : null;
 
 async function call(m, contents, fast) {
   const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 12000);
   try {
     const body = { systemInstruction: { parts: [{ text: RULES }] }, contents };
-    if (fast && thinking(m)) body.generationConfig = { maxOutputTokens: 600, thinkingConfig: thinking(m) };
+    if (fast && thinking(m)) body.generationConfig = { maxOutputTokens: 800, thinkingConfig: thinking(m) };
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY || "" },
