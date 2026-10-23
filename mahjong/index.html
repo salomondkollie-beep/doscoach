@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17604A">
+<title>Mahjong Zen</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/api/icon?s=512">
+<link rel="manifest" href="/manifest.json">
+<style>
+:root{--bg:#EEF4EF;--panel:#fff;--ink:#14302A;--mute:#5B6F6B;--line:#D5E0DB;--acc:#1F7A6D;--on:#fff;--gold:#E3A72F;--f1:#2A8A68;--f2:#17604A;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C1A16;--panel:#16251F;--ink:#E4EFEC;--mute:#97ADA8;--line:#2B4440;--acc:#4FB9A8;--on:#0C1A16;--f1:#1F6F55;--f2:#103B2D}}
+:root[data-theme="dark"]{--bg:#0C1A16;--panel:#16251F;--ink:#E4EFEC;--mute:#97ADA8;--line:#2B4440;--acc:#4FB9A8;--on:#0C1A16;--f1:#1F6F55;--f2:#103B2D}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden;user-select:none;-webkit-user-select:none}
+[hidden]{display:none!important}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:8px}
+h1{font-size:19px;margin:0}
+.st{display:flex;gap:12px;font-size:13px;color:var(--mute);align-items:center}.st b{color:var(--ink)}
+#back{border:0;background:var(--panel);color:var(--ink);border-radius:12px;font:600 20px system-ui;width:42px;height:38px;box-shadow:0 0 0 1px var(--line) inset}
+#wrap{flex:1;min-height:0;margin:0 8px;border-radius:16px;background:radial-gradient(circle at 50% 40%,var(--f1),var(--f2));display:flex;align-items:center;justify-content:center;overflow:hidden}
+#board{position:relative}
+footer{display:flex;gap:8px;padding:10px 8px 12px}
+footer button,.row2 button{flex:1;border:0;border-radius:14px;background:var(--panel);color:var(--ink);padding:8px 2px;font:600 20px system-ui,sans-serif;box-shadow:0 0 0 1px var(--line) inset;display:flex;flex-direction:column;align-items:center;gap:2px}
+footer small{font:600 11px system-ui,sans-serif;color:var(--mute)}
+.tile{position:absolute;border-radius:7px;background:linear-gradient(#FFFEF6,#F1E9CF);box-shadow:2px 3px 0 #BDB290,3px 5px 0 #8C8466,0 7px 9px rgba(0,0,0,.35);transition:transform .15s,opacity .25s,filter .2s;cursor:pointer}
+.tile svg{position:absolute;inset:6% 8%;width:84%;height:88%;font-family:"Noto Serif CJK SC","Source Han Serif SC","Songti SC","SimSun",serif}
+.tile.blk{filter:brightness(.74) saturate(.8)}
+.tile.sel{outline:3px solid var(--gold);transform:translateY(-3px)}
+.tile.hint{animation:pulse .6s ease 3}
+.tile.out{transform:scale(.4);opacity:0;pointer-events:none}
+.tile.no{animation:shake .25s}
+@keyframes pulse{50%{filter:brightness(1.12) drop-shadow(0 0 7px var(--gold))}}
+@keyframes shake{25%{translate:-3px 0}75%{translate:3px 0}}
+#hbody{flex:1;min-height:0;overflow:auto;padding:4px 14px 18px}
+.big{width:100%;border:0;border-radius:16px;background:linear-gradient(var(--f1),var(--f2));color:#fff;font:700 20px system-ui,sans-serif;padding:18px;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.row2{display:flex;gap:8px;margin:12px 0}.row2 button{font-size:15px;flex-direction:row;justify-content:center;padding:12px 4px}
+#map{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.lb{aspect-ratio:1;border:0;border-radius:14px;background:var(--panel);color:var(--ink);box-shadow:0 0 0 1px var(--line) inset;display:flex;flex-direction:column;align-items:center;justify-content:center;font:600 18px system-ui,sans-serif}
+.lb small{font-size:10px;color:var(--gold);letter-spacing:1px}
+.wh{grid-column:1/-1;font:700 15px system-ui,sans-serif;color:var(--mute);margin:10px 2px 0}.lb.cur{outline:3px solid var(--gold)}.lb.lock{opacity:.4}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:24px;z-index:9}
+.box{background:var(--panel);border-radius:18px;padding:22px;text-align:center;max-width:320px;width:100%}
+.box h2{margin:0 0 6px;font-size:24px}.box p{margin:0 0 14px;color:var(--mute)}
+.box button{display:block;width:100%;font:600 16px system-ui,sans-serif;padding:12px 16px;border:0;border-radius:12px;background:var(--acc);color:var(--on);margin:7px 0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<section id="home" class="view">
+<header><h1>Mahjong Zen</h1><div class="st"><span>🪙 <b id="co">0</b></span></div></header>
+<div id="hbody">
+<button class="big" id="play"></button>
+<div class="row2"><button id="shopb">🛒 Boutique</button><button id="snd"></button><button id="inst" hidden>📲 Installer</button></div>
+<div id="map"></div>
+</div>
+</section>
+<section id="game" class="view" hidden>
+<header><button id="back" aria-label="Retour">←</button><h1 id="lv"></h1><div class="st"><span>Score <b id="sc">0</b></span><span><b id="tm">0:00</b></span></div></header>
+<div id="wrap"><div id="board"></div></div>
+<footer>
+<button id="bu"><span>↶</span><small id="t_undo"></small></button>
+<button id="bh"><span>💡</span><small id="t_hint"></small></button>
+<button id="bz"><span>🔀</span><small id="t_shuf"></small></button>
+<button id="bm"><span>🧲</span><small id="t_mag"></small></button>
+</footer>
+</section>
+<div id="ov" hidden><div class="box"><h2 id="ot"></h2><p id="op"></p><div id="ob"></div></div></div>
+<script>
+const T=[1,2,3,4,5].map(n=>["d",n]).concat([1,2,3,4,5].map(n=>["b",n]),[1,2,3,4,5].map(n=>["c",n]),["東","南","西","北","中","發"].map(v=>["w",v]));
+const DOT={1:[[20,26,11]],2:[[20,14,8],[20,38,8]],3:[[11,12,7],[20,26,7],[29,40,7]],4:[[12,15,8],[28,15,8],[12,37,8],[28,37,8]],5:[[12,15,7],[28,15,7],[20,26,7],[12,37,7],[28,37,7]]};
+const BAM={1:[[20,26]],2:[[20,14],[20,38]],3:[[20,14],[12,38],[28,38]],4:[[12,14],[28,14],[12,38],[28,38]],5:[[12,14],[28,14],[20,26],[12,38],[28,38]]};
+const WC={"東":"#1B2631","南":"#1B2631","西":"#1B2631","北":"#1B2631","中":"#C0392B","發":"#1E8449"};
+function face(t){const k=t[0],v=t[1];let s="";
+ if(k==="d")s=DOT[v].map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="${a[2]}" fill="#2E86C1" stroke="#1B4F72" stroke-width="1.5"/><circle cx="${a[0]}" cy="${a[1]}" r="${a[2]*.42}" fill="#E74C3C"/>`).join("");
+ else if(k==="b")s=BAM[v].map(a=>{const h=v===1?34:20;return `<rect x="${a[0]-4}" y="${a[1]-h/2}" width="8" height="${h}" rx="3.5" fill="#2E9E5B" stroke="#14663A" stroke-width="1.3"/><rect x="${a[0]-4}" y="${a[1]-1}" width="8" height="2" fill="#14663A"/>`}).join("");
+ else if(k==="c")s=`<text x="20" y="24" text-anchor="middle" font-size="22" font-weight="700" fill="#1B2631">${"一二三四五"[v-1]}</text><text x="20" y="46" text-anchor="middle" font-size="20" font-weight="700" fill="#C0392B">萬</text>`;
+ else s=`<text x="20" y="37" text-anchor="middle" font-size="32" font-weight="700" fill="${WC[v]}">${v}</text>`;
+ return `<svg viewBox="0 0 40 52">${s}</svg>`}
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const SH=[()=>1,(u,v)=>Math.abs(u)+Math.abs(v)<=1.15,(u,v)=>!(Math.abs(u)<.45&&Math.abs(v)<.45),(u,v)=>Math.abs(u)<.5||Math.abs(v)<.5,(u,v)=>Math.abs(u)<=(v+1)/2+.15,(u,v)=>Math.abs(u)<=.35+.65*Math.abs(v),(u,v)=>Math.abs(u)>.35||Math.abs(v)<.4,(u,v,c,r)=>r%2===0||c%3===1,(u,v)=>u*u+v*v<=1.1,(u,v)=>{const x=u*1.25,y=-v*1.25+.2;return Math.pow(x*x+y*y-1,3)-x*x*y*y*y<=0}];
+function info(n){const d=(n-1)/299,j=(n-1)%30,w=Math.floor((n-1)/30),s=Math.min(1,.25+.55*(j/29)+.35*d);
+ return{types:Math.min(21,6+Math.floor((n-1)/20)+(n>=290?1:0)),depth:1+Math.min(3,Math.floor(d*3.2+j/29*.8)),shape:(n*5+w*3)%SH.length,W:4+Math.round(4*s),H:3+Math.round(3*s)}}
+function layout(n,plain){
+ const q=info(n),R=rng(n*7919+13),W=q.W,H=q.H;let S=new Set();
+ const build=sh=>{S=new Set();for(let r=0;r<H;r++)for(let c=0;c<W;c++)if(SH[sh]((c+.5)/W*2-1,(r+.5)/H*2-1,c,r))S.add(c+","+r);return S.size};
+ if(plain||build(q.shape)<12)build(0);
+ const L=[];let prev=S;
+ for(let z=0;z<q.depth&&prev.size;z++){
+  let cur=prev;
+  if(z>0){cur=[...prev].filter(k=>{const a=k.split(",").map(Number),c=a[0],r=a[1];return prev.has((c+1)+","+r)&&prev.has((c-1)+","+r)&&prev.has(c+","+(r+1))&&prev.has(c+","+(r-1))&&R()>.2});cur=new Set(cur)}
+  [...cur].map(k=>k.split(",").map(Number)).sort((a,b)=>a[1]-b[1]||a[0]-b[0]).forEach(a=>L.push([a[0]*2,a[1]*2,z]));
+  prev=cur;
+ }
+ if(L.length%2)L.pop();
+ return L;
+}
+const TOOLS={undo:["↶","Annuler",20],hint:["💡","Indice",30],shuf:["🔀","Mélanger",40],mag:["🧲","Aimant",60]};
+const $=id=>document.getElementById(id);
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+let P={lvl:1,stars:{},coins:0,tools:{undo:5,hint:5,shuf:3,mag:2},snd:true};
+try{const s=JSON.parse(store("mz2")||"null");if(s)P=Object.assign(P,s)}catch(e){}
+const save=()=>store("mz2",JSON.stringify(P));
+let ac;function beep(f,d,ty){if(!P.snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=ty||"sine";o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+let tiles=[],sel=null,hist=[],score=0,secs=0,timer=null,combo=0,lastT=0,over=false,half=16,cur=1,par=100;
+const alive=()=>tiles.filter(t=>!t.gone);
+const covered=t=>tiles.some(o=>!o.gone&&o.z===t.z+1&&Math.abs(o.x-t.x)<2&&Math.abs(o.y-t.y)<2);
+const side=(t,d)=>tiles.some(o=>!o.gone&&o.z===t.z&&o.x===t.x+d&&Math.abs(o.y-t.y)<2);
+const free=t=>!t.gone&&!covered(t)&&!(side(t,-2)&&side(t,2));
+const pairs=()=>{const f=alive().filter(free),r=[];for(let i=0;i<f.length;i++)for(let j=i+1;j<f.length;j++)if(f[i].t===f[j].t)r.push([f[i],f[j]]);return r};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+const stars=n=>"★".repeat(n)+"☆".repeat(3-n);
+function deal(L,nt){
+ for(let n=0;n<400;n++){
+  tiles=L.map(a=>({x:a[0],y:a[1],z:a[2],t:-1,gone:false}));
+  const deck=[];for(let i=0;i<L.length/2;i++)deck.push(i%nt);shuffle(deck);
+  let ok=true;
+  for(const ty of deck){const f=shuffle(tiles.filter(free));if(f.length<2){ok=false;break}f[0].t=ty;f[1].t=ty;f[0].gone=f[1].gone=true}
+  if(ok){tiles.forEach(t=>t.gone=false);return true}
+ }
+ return false;
+}
+function view(v){$("home").hidden=v!=="home";$("game").hidden=v!=="game"}
+function sync(){$("co").textContent=P.coins;for(const k in TOOLS)$("t_"+k).textContent=TOOLS[k][1]+" "+P.tools[k]}
+function renderHome(){
+ sync();$("play").textContent=P.lvl>300?"Rejouer le niveau 300":"Jouer · Niveau "+P.lvl;$("snd").textContent=P.snd?"🔊 Son":"🔇 Son";
+ const m=$("map");m.innerHTML="";
+ for(let n=1;n<=300;n++){
+  if(n%30===1){const h=document.createElement("div");h.className="wh";h.textContent="Monde "+Math.ceil(n/30);m.appendChild(h)}
+  const b=document.createElement("button"),ok=n<=P.lvl,s=P.stars[n]||0;
+  b.className="lb"+(n===P.lvl?" cur":"")+(ok?"":" lock");
+  b.innerHTML=ok?`<b>${n}</b><small>${stars(s)}</small>`:`<b>🔒</b>`;
+  if(ok)b.onclick=()=>startLevel(n);m.appendChild(b)}
+ const c=m.querySelector(".cur");if(c&&P.lvl>1)setTimeout(()=>c.scrollIntoView({block:"center"}),50);
+}
+function startLevel(n){
+ cur=n;const q=info(n);clearInterval(timer);view("game");$("ov").hidden=true;
+ if(!deal(layout(n),q.types))deal(layout(n,1),q.types);par=Math.round(tiles.length*2.2);
+ sel=null;hist=[];score=0;secs=0;combo=0;lastT=0;over=false;$("lv").textContent="Niveau "+n;
+ const b=$("board");b.innerHTML="";
+ tiles.forEach(t=>{const e=document.createElement("div");e.className="tile";e.innerHTML=face(T[t.t]);e.onclick=()=>pick(t);t.el=e;b.appendChild(e)});
+ place();refreshG();
+ timer=setInterval(()=>{if(!over&&!document.hidden){secs++;$("tm").textContent=fmt(secs)}},1000);
+}
+function place(){
+ if(!tiles.length)return;const w=$("wrap"),aw=w.clientWidth-16,ah=w.clientHeight-16;
+ const x0=Math.min(...tiles.map(t=>t.x)),y0=Math.min(...tiles.map(t=>t.y)),bw=Math.max(...tiles.map(t=>t.x))-x0+2,bh=Math.max(...tiles.map(t=>t.y))-y0+2;
+ half=Math.max(10,Math.min(26,Math.floor(Math.min(aw/(bw+.7),ah/(bh*1.3+.6)))));
+ const tw=half*2,th=Math.round(tw*1.3),hy=th/2,s=Math.max(2,Math.round(half/7)),b=$("board");
+ b.style.width=(bw*half+14)+"px";b.style.height=(bh*hy+12)+"px";
+ tiles.forEach(t=>{const e=t.el;e.style.width=tw+"px";e.style.height=th+"px";e.style.left=(8+(t.x-x0)*half-t.z*s)+"px";e.style.top=(6+(t.y-y0)*hy-t.z*s)+"px"});
+}
+function refreshG(){
+ tiles.forEach(t=>{const c=t.el.classList;c.toggle("out",t.gone);c.toggle("blk",!t.gone&&!free(t));c.toggle("sel",t===sel)});
+ $("sc").textContent=score;$("tm").textContent=fmt(secs);sync();
+}
+function pick(t){
+ if(over||t.gone)return;
+ if(!free(t)){beep(180,.12,"square");const c=t.el.classList;c.remove("no");void t.el.offsetWidth;c.add("no");return}
+ if(!sel){sel=t;beep(440,.05)}else if(sel===t)sel=null;else if(sel.t===t.t)return match(sel,t);else{sel=t;beep(440,.05)}
+ refreshG();
+}
+function match(a,b){
+ a.gone=b.gone=true;sel=null;const now=Date.now();
+ combo=now-lastT<5000?combo+1:0;lastT=now;const pts=10+combo*5;score+=pts;
+ hist.push({a:a,b:b,pts:pts});beep(660,.1);setTimeout(()=>beep(880,.12),80);refreshG();
+ if(!alive().length)win();else if(!pairs().length)stuck();
+}
+function toolUndo(){if(over||!hist.length)return;if(P.tools.undo<=0)return shop();P.tools.undo--;save();const m=hist.pop();m.a.gone=m.b.gone=false;score-=m.pts;sel=null;combo=0;refreshG()}
+function toolHint(){
+ if(over)return;if(P.tools.hint<=0)return shop();const p=pairs();if(!p.length)return;
+ P.tools.hint--;save();const q=p[Math.floor(Math.random()*p.length)];q[0].el.classList.add("hint");q[1].el.classList.add("hint");
+ setTimeout(()=>{q[0].el.classList.remove("hint");q[1].el.classList.remove("hint")},2000);sync();
+}
+function doShuffle(){
+ const al=alive(),ty=al.map(t=>t.t);
+ for(let k=0;k<400;k++){shuffle(ty);al.forEach((t,i)=>t.t=ty[i]);if(pairs().length)break}
+ al.forEach(t=>t.el.innerHTML=face(T[t.t]));sel=null;$("ov").hidden=true;refreshG();
+}
+function toolShuf(){if(over)return;if(P.tools.shuf<=0)return shop();P.tools.shuf--;save();doShuffle()}
+function toolMag(){if(over)return;if(P.tools.mag<=0)return shop();const p=pairs();if(!p.length)return;P.tools.mag--;save();const q=p[Math.floor(Math.random()*p.length)];match(q[0],q[1])}
+function ov(title,text,btns){
+ $("ot").textContent=title;$("op").textContent=text;const b=$("ob");b.innerHTML="";
+ btns.forEach(x=>{const e=document.createElement("button");e.textContent=x[0];e.onclick=x[1];b.appendChild(e)});$("ov").hidden=false;
+}
+function home(){clearInterval(timer);$("ov").hidden=true;view("home");renderHome()}
+function stuck(){
+ const b=[];if(P.tools.shuf>0)b.push(["Mélanger ("+P.tools.shuf+")",toolShuf]);else b.push(["Boutique",shop]);
+ b.push(["Recommencer",()=>startLevel(cur)],["Menu",home]);ov("Plus de coups","Mélange les tuiles pour continuer.",b);
+}
+function win(){
+ over=true;clearInterval(timer);const s=secs<=par?3:secs<=par*1.6?2:1,gain=20+s*10;
+ P.stars[cur]=Math.max(P.stars[cur]||0,s);P.lvl=Math.max(P.lvl,Math.min(301,cur+1));P.coins+=gain;
+ let bonus="";if(s===3){const k=Object.keys(TOOLS)[Math.floor(Math.random()*4)];P.tools[k]++;bonus=" +1 "+TOOLS[k][0]}
+ save();refreshG();[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18),i*120));
+ const b=[];if(cur<300)b.push(["Niveau suivant",()=>startLevel(cur+1)]);b.push(["Rejouer",()=>startLevel(cur)],["Menu",home]);
+ ov("Niveau réussi !",stars(s)+" · "+fmt(secs)+" · +"+gain+" 🪙"+bonus,b);
+}
+function shop(){
+ const b=Object.keys(TOOLS).map(k=>[TOOLS[k][0]+" "+TOOLS[k][1]+" ×"+P.tools[k]+" · "+TOOLS[k][2]+" 🪙",()=>{
+  if(P.coins<TOOLS[k][2]){beep(180,.15,"square");return}
+  P.coins-=TOOLS[k][2];P.tools[k]++;save();beep(880,.1);sync();shop()}]);
+ b.push(["Fermer",()=>{$("ov").hidden=true}]);ov("Boutique","Tu as "+P.coins+" 🪙. Gagne des pièces en réussissant les niveaux.",b);
+}
+$("play").onclick=()=>startLevel(Math.min(P.lvl,300));
+$("shopb").onclick=shop;
+$("snd").onclick=()=>{P.snd=!P.snd;save();renderHome();beep(660,.1)};
+$("back").onclick=()=>{if(!over&&hist.length&&!confirm("Quitter la partie ?"))return;home()};
+$("bu").onclick=toolUndo;$("bh").onclick=toolHint;$("bz").onclick=toolShuf;$("bm").onclick=toolMag;
+let ip;addEventListener("beforeinstallprompt",e=>{e.preventDefault();ip=e;$("inst").hidden=false});
+$("inst").onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice;ip=null;$("inst").hidden=true};
+addEventListener("appinstalled",()=>{$("inst").hidden=true});
+addEventListener("resize",()=>{if(!$("game").hidden)place()});
+if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+renderHome();
+</script>
+</body>
+  </html>
